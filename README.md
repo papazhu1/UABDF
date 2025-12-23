@@ -24,3 +24,27 @@ and structural consistency across classifiers.
 
 - **Wasserstein-Based Distribution Alignment**  
   UABDF aligns the predicted class distribution with the true label distribution using Wasserstein distance. This dual-purpose alignment mechanism effectively handles the trade-off between prediction consistency and classification accuracy.
+
+## Requirements
+
+### Main dependencies
+
+- **Python** (>=3.7)
+- **NumPy** (1.24.3)
+- **pandas** (2.2.2)
+- **scikit-learn** (1.3.1)
+- **scipy** (>=1.5)
+- **imbalanced-ensemble** (0.2.1)
+- **ucimlrepo** (0.0.7)
+- **matplotlib** (3.8.4, optional, for visualization)
+
+> **Note:**  
+> UABDF does *not* rely on deep learning frameworks (e.g., PyTorch/TensorFlow),  
+> making the framework lightweight and easy to run on CPU.
+
+## Running demo.py
+To run the demo script and see UABDF in action, execute the following command in your terminal:
+
+```bash
+python demo.py
+```
