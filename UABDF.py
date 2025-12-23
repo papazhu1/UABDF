@@ -16,10 +16,10 @@ import pickle
 from funcs import error_to_hardness, calculate_bin_capacities
 from func_utils import *
 
-LOGGER = get_logger("UncertaintyAwareDeepForest")
+LOGGER = get_logger("UncertaintyAwareBalancedDeepForest")
 
 
-class UncertaintyAwareDeepForest(object):
+class UncertaintyAwareBalancedDeepForest(object):
 
     def __init__(self, config):
         self.random_state = config["random_state"]

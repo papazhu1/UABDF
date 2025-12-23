@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, average_pre
     precision_score
 from sklearn.model_selection import StratifiedKFold
 import data_util
-from UADF import UncertaintyAwareDeepForest
+from UABDF import UncertaintyAwareBalancedDeepForest
 from data_util import *
 from evaluation import f1_macro, gmean
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         print(dataset_name)
         print("Counter(y)", Counter(y))
 
-        model = UncertaintyAwareDeepForest(get_config())
+        model = UncertaintyAwareBalancedDeepForest(get_config())
         model_name = "UncertaintyAwareDeepForest"
 
         save_dir = os.path.join("compared_results_evidence", f"{dataset_name}_result")
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
             config = get_config()
 
-            UADF = UncertaintyAwareDeepForest(config)
+            UADF = UncertaintyAwareBalancedDeepForest(config)
             UADF.fit(X_train, y_train)
 
             # shap_analysis_per_layer(DGBDF, X_test, y_test)
