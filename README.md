@@ -36,7 +36,6 @@ and structural consistency across classifiers.
 - **NumPy** (1.24.3)
 - **pandas** (2.2.2)
 - **scikit-learn** (1.3.1)
-- **scipy** (>=1.5)
 - **imbalanced-ensemble** (0.2.1)
 - **ucimlrepo** (0.0.7)
 - **matplotlib** (3.8.4, optional, for visualization)
