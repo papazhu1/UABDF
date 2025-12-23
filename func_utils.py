@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import consensus_score
 from sympy.abc import alpha
 
+
 def combine_opinions(opinion_1, opinion_2):
     b_i, d_i, u_i = opinion_1
     b_j, d_j, u_j = opinion_2
@@ -18,8 +19,6 @@ def combine_opinions(opinion_1, opinion_2):
     return b_combined, d_combined, u_combined
 
 
-# 传入的参数已经是对次数的统计值了
-
 def DS_Combine_evidence_with_opinion(E, Opinion):
     W = 50 / 2
     beta1, alpha1 = (E + W)[0]
@@ -31,19 +30,12 @@ def DS_Combine_evidence_with_opinion(E, Opinion):
 
     o1 = np.array([b1, d1, u1])
     o2 = Opinion
-    #
-    # elementwise_product = o1 * o2
-    # C = np.sum(elementwise_product)
-    #
-    # consensus_opinion = (1 / C) * elementwise_product + (o1 + o2)
-    # consensus_opinion /= np.sum(consensus_opinion)
 
     consensus_opinion = combine_opinions(o1, o2)
     return consensus_opinion
 
 
 def DS_Combine2(E1, E2):
-
     W = 50 / 2
     beta1, alpha1 = (E1 + W)[0]
     beta2, alpha2 = (E2 + W)[0]
@@ -51,25 +43,20 @@ def DS_Combine2(E1, E2):
     S1 = alpha1 + beta1
     S2 = alpha2 + beta2
 
-    b1 = (alpha1-W) / S1
-    d1 = (beta1-W) / S1
+    b1 = (alpha1 - W) / S1
+    d1 = (beta1 - W) / S1
     u1 = 2 * W / S1
 
-    b2 = (alpha2-W) / S2
-    d2 = (beta2-W) / S2
+    b2 = (alpha2 - W) / S2
+    d2 = (beta2 - W) / S2
     u2 = 2 * W / S2
 
     o1 = np.array([b1, d1, u1])
     o2 = np.array([b2, d2, u2])
 
-    # elementwise_product = o1 * o2
-    # C = np.sum(elementwise_product)
-    #
-    # consensus_opinion = (1 / C) * elementwise_product + (o1 + o2)
-    # consensus_opinion /= np.sum(consensus_opinion)
-
     consensus_opinion = combine_opinions(o1, o2)
     return consensus_opinion
+
 
 def DS_Combine_ensemble_for_instances(E1, E2):
     n_classes = E1.shape[1]
@@ -79,112 +66,67 @@ def DS_Combine_ensemble_for_instances(E1, E2):
     S1 = np.sum(alpha1, axis=1, keepdims=True)
     S2 = np.sum(alpha2, axis=1, keepdims=True)
 
-    # print("S1", S1)
-    # print("S2", S2)
     b1 = E1 / S1
     b2 = E2 / S2
-
-    # print("b1", b1)
-    # print("b2", b2)
 
     u1 = n_classes / S1
     u2 = n_classes / S2
 
-    # print("u1", u1)
-    # print("u2", u2)
-
     bb = np.einsum('ij,ik->ijk', b1, b2)
 
-    # 计算 b^0 * u^1
     uv1_expand = np.broadcast_to(u2, b1.shape)  # 使用 np.broadcast_to 匹配形状
     bu = b1 * uv1_expand
 
-    # 计算 b^1 * u^0
     uv_expand = np.broadcast_to(u1, b2.shape)
     ub = b2 * uv_expand
 
-    # 计算 K
     bb_sum = np.sum(bb, axis=(1, 2))  # 计算 bb 的总和
     bb_diag = np.einsum('ijj->i', bb)  # 提取对角线并在批量中求和
     K = bb_sum - bb_diag
 
-    # 计算 b^a
     b_combined = (b1 * b2 + bu + ub) / np.expand_dims((1 - K), axis=1)
 
-    # 计算 u^a
     u_combined = (u1 * u2) / np.expand_dims((1 - K), axis=1)
 
-    # 计算新的 S
     S_combined = n_classes / u_combined
 
-    # 计算新的 e_k
     e_combined = b_combined * np.broadcast_to(S_combined, b_combined.shape)
     alpha_combined = e_combined + 1
 
     return alpha_combined, b_combined, u_combined
 
 
-
-
-# 需要传入的参数：
-# alpha1 = evidence1 + 1
-# alpha2 = evidence2 + 1
 def DS_Combin_two(alpha1, alpha2, n_classes):
     # 计算两个DS证据的合并
     alpha = {0: alpha1, 1: alpha2}
     b, S, E, u = {}, {}, {}, {}
 
     for v in range(2):
-
-        # S[v]将每个样本的所有类别的alpha[v]相加，每个样本的S值都为 4
-        S[v] = np.sum(alpha[v], axis=1, keepdims=True)# 使用 np.sum 计算 S
+        S[v] = np.sum(alpha[v], axis=1, keepdims=True)
         E[v] = alpha[v] - 1
-        # print("alpha[v].shape", alpha[v].shape)
-        # print("E[v].shape", E[v].shape)
-        # print("S[v].shape", S[v].shape)
-        # print("alpha[v]", alpha[v])
-        # print("E[v]", E[v])
-        # print("S[v]", S[v])
-        # b[v] = E[v] / np.expand_dims(S[v], axis=1)  # 使用 np.expand_dims 进行广播
         b[v] = E[v] / S[v]
-        # print("np.expand_dims(S[v], axis=1).shape", np.expand_dims(S[v], axis=1).shape)
-        # print("b[v].shape", b[v].shape)
         u[v] = n_classes / S[v]
 
         print(u[v])
 
-    # 计算 b^0 @ b^(0+1)
+    bb = np.einsum('ij,ik->ijk', b[0], b[1])
 
-    # print("b[0].shape", b[0].shape)
-    # print("b[1].shape", b[1].shape)
-    bb = np.einsum('ij,ik->ijk', b[0], b[1])  # 使用 np.einsum 实现批量矩阵乘法
-    # print("bb.shape", bb.shape)
-
-
-
-    # 计算 b^0 * u^1
-    uv1_expand = np.broadcast_to(u[1], b[0].shape)  # 使用 np.broadcast_to 匹配形状
+    uv1_expand = np.broadcast_to(u[1], b[0].shape)
     bu = b[0] * uv1_expand
 
-    # 计算 b^1 * u^0
     uv_expand = np.broadcast_to(u[0], b[1].shape)
     ub = b[1] * uv_expand
 
-    # 计算 K
     bb_sum = np.sum(bb, axis=(1, 2))  # 计算 bb 的总和
     bb_diag = np.einsum('ijj->i', bb)  # 提取对角线并在批量中求和
     K = bb_sum - bb_diag
 
-    # 计算 b^a
     b_combined = (b[0] * b[1] + bu + ub) / np.expand_dims((1 - K), axis=1)
 
-    # 计算 u^a
     u_combined = (u[0] * u[1]) / np.expand_dims((1 - K), axis=1)
 
-    # 计算新的 S
     S_combined = n_classes / u_combined
 
-    # 计算新的 e_k
     e_combined = b_combined * np.broadcast_to(S_combined, b_combined.shape)
     alpha_combined = e_combined + 1
 
@@ -213,8 +155,10 @@ def KL(alpha, c):
         raise ValueError('kl < 0')
     return kl
 
+
 def calculate_KL(alpha, c):
     return KL(alpha, c)
+
 
 def calculate_A(alpha, p, c):
     S = np.sum(alpha, axis=1, keepdims=True)
@@ -278,6 +222,7 @@ def wasserstein_distance(alpha1, beta1, alpha2, beta2):
 
     return W
 
+
 def ce_loss2(y, alpha_combined, beta_combined, beta_distributions, lamb=0.5):
     """
     计算 Wasserstein 距离的损失函数
@@ -300,7 +245,7 @@ def ce_loss2(y, alpha_combined, beta_combined, beta_distributions, lamb=0.5):
     W_B /= len(beta_distributions)
 
     # print("W_A", W_A, "W_B", W_B)
-    Weight = lamb * W_A + (1-lamb) * W_B
+    Weight = lamb * W_A + (1 - lamb) * W_B
     return Weight, W_A, W_B
 
 
@@ -331,7 +276,7 @@ def ce_loss(p, alpha, c, global_step=0, lamb=0.5, average=True):
         res = np.mean(A + B)
         return res, A.reshape(-1, 1), B.reshape(-1, 1)
     else:
-        res = lamb * A + (1-lamb) * B
+        res = lamb * A + (1 - lamb) * B
 
         # 用一个y = kx + b的图像来画出A和B的变化
         A = A.flatten()

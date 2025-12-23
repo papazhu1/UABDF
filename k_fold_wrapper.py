@@ -38,7 +38,8 @@ class KFoldWrapper(object):
 
         return self.estimator_class(**est_args)
 
-    def fit(self, x, y, buckets=None, bucket_variances=None, index_1_sorted=None, uncertainty_1_sorted=None, loss_A_B_stats=None):
+    def fit(self, x, y, buckets=None, bucket_variances=None, index_1_sorted=None, uncertainty_1_sorted=None,
+            loss_A_B_stats=None):
 
         skf = StratifiedKFold(n_splits=self.n_fold, shuffle=True, random_state=self.random_state)
         cv = [(t, v) for (t, v) in skf.split(x, y)]
@@ -54,7 +55,8 @@ class KFoldWrapper(object):
             est = self._init_estimator()
             train_id, val_id = cv[k]
 
-            args.append((train_id, val_id, x, y, est, buckets, bucket_variances, index_1_sorted, uncertainty_1_sorted, loss_A_B_stats))
+            args.append((train_id, val_id, x, y, est, buckets, bucket_variances, index_1_sorted, uncertainty_1_sorted,
+                         loss_A_B_stats))
 
         pool = Pool(self.n_fold)
         parallel_return = pool.map(train_K_fold_paralleling, args)
@@ -62,28 +64,10 @@ class KFoldWrapper(object):
 
         for k, ret in enumerate(parallel_return):
             est, y_proba, y_pred, val_id, y_evidence = ret
-
-            # LOGGER_2.info(
-            #     "{}, n_fold_{},Accuracy={:.4f}, f1_score={:.4f}, auc={:.4f}, gmean={:.4f}, sen={:.4f}, spe={:.4f}, aupr={:.4f}".format(
-            #         self.name, k, accuracy_score(y[val_id], y_pred),
-            #         f1_score(y[val_id], y_pred, average="macro"), roc_auc_score(y[val_id], y_proba[:, 1]),
-            #         geometric_mean_score(y[val_id], y_pred),
-            #         sensitivity_score(y[val_id], y_pred), specificity_score(y[val_id], y_pred),
-            #         average_precision_score(y[val_id], y_proba[:, 1])))
             y_probas[val_id] += y_proba
             y_evidences[val_id] += y_evidence
 
-
             self.estimators[k] = est
-
-        # LOGGER_2.info(
-        #     "{}, {},Accuracy={:.4f}, f1_score={:.4f}, auc={:.4f}, gmean={:.4f}, sen={:.4f}, spe={:.4f}, aupr={:.4f}".format(
-        #         self.name, "wrapper", accuracy_score(y, np.argmax(y_probas, axis=1)),
-        #         f1_score(y, np.argmax(y_probas, axis=1), average="macro"), roc_auc_score(y, y_probas[:, 1]),
-        #         geometric_mean_score(y, np.argmax(y_probas, axis=1)),
-        #         sensitivity_score(y, np.argmax(y_probas, axis=1)), specificity_score(y, np.argmax(y_probas, axis=1)),
-        #         average_precision_score(y, y_probas[:, 1])))
-        # LOGGER_2.info("----------")
 
         alpha = np.sum(y_evidences) / len(y_evidence)
         return y_probas, y_evidences, alpha

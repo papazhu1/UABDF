@@ -16,8 +16,6 @@ import pickle
 from funcs import error_to_hardness, calculate_bin_capacities
 from func_utils import *
 
-
-
 LOGGER = get_logger("UncertaintyAwareDeepForest")
 
 
@@ -41,12 +39,14 @@ class UncertaintyAwareDeepForest(object):
         self.per_layer_res_weighted_layers = []
         self.mean_KL_per_layer = []
         self.lamb = config["lamb"]
+
     def calculate_KL_u_use_evidence(self, y_train_evidence_per_layer_per_forest, n_classes_):
         all_instance_KL = np.zeros((len(y_train_evidence_per_layer_per_forest[0]), 1))
         all_instance_u = np.zeros((len(y_train_evidence_per_layer_per_forest[0]), 1))
 
         for sample_idx in range(len(y_train_evidence_per_layer_per_forest[0])):
-            evidence_array = np.zeros((len(self.estimator_configs) * len(y_train_evidence_per_layer_per_forest), n_classes_))
+            evidence_array = np.zeros(
+                (len(self.estimator_configs) * len(y_train_evidence_per_layer_per_forest), n_classes_))
 
             forest_idx = 0
             for layer_loc in range(len(y_train_evidence_per_layer_per_forest)):
@@ -86,14 +86,9 @@ class UncertaintyAwareDeepForest(object):
 
         return all_instance_KL, all_instance_u
 
-
-
-
     def calculate_KL_u(self, y_probas_per_layer_per_forest, n_classes_):
         all_instance_KL = np.zeros((len(y_probas_per_layer_per_forest[0]), 1))
         all_instance_u = np.zeros((len(y_probas_per_layer_per_forest[0]), 1))
-
-
 
         for sample_idx in range(len(y_probas_per_layer_per_forest[0])):
             pred_list = []
@@ -122,16 +117,15 @@ class UncertaintyAwareDeepForest(object):
             expanded_pred_array *= (self.n_estimators + 1)
             print("expanded_pred_array", expanded_pred_array)
 
-            # print("expanded_pred_array[0]:", expanded_pred_array[0].reshape(1, 2))
-            # print("expanded_pred_array[0].shape", expanded_pred_array[0].reshape(1,2).shape)
-
             # 现在要对每个样本计算loss
-            alpha_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(expanded_pred_array[0].reshape(1, 2),
-                                                                                      expanded_pred_array[1].reshape(1, 2))
+            alpha_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(
+                expanded_pred_array[0].reshape(1, 2),
+                expanded_pred_array[1].reshape(1, 2))
             for k in range(2, len(self.estimator_configs)):
                 alpha_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(alpha_combined.reshape(1, 2),
-                                                                                          expanded_pred_array[k].reshape(1,
-                                                                                                                         2))
+                                                                                           expanded_pred_array[
+                                                                                               k].reshape(1,
+                                                                                                          2))
             KL = calculate_KL(alpha_combined, n_classes_)
 
             all_instance_KL[sample_idx] = KL
@@ -291,27 +285,21 @@ class UncertaintyAwareDeepForest(object):
                         expanded_pred_array = np.vstack((1 - pred_array, pred_array)).T
                         expanded_pred_array *= (self.n_estimators + 1)
 
-                        # print("expanded_pred_array[0]:", expanded_pred_array[0].reshape(1, 2))
-                        # print("expanded_pred_array[0].shape", expanded_pred_array[0].reshape(1, 2).shape)
-
                         # 现在要对每个样本计算loss
-                        loss_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(expanded_pred_array[0].reshape(1, 2),
-                                                                              expanded_pred_array[1].reshape(1, 2))
-
+                        loss_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(
+                            expanded_pred_array[0].reshape(1, 2),
+                            expanded_pred_array[1].reshape(1, 2))
 
                         for i in range(2, len(self.estimator_configs)):
-                            loss_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(loss_combined.reshape(1, 2),
-                                                                                  expanded_pred_array[i].reshape(1, 2))
+                            loss_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(
+                                loss_combined.reshape(1, 2),
+                                expanded_pred_array[i].reshape(1, 2))
 
-                        # loss_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(expanded_pred_array[0].reshape(1, 2),
-                        #                                                               expanded_pred_array[1].reshape(1, 2))
                         loss, A, B = ce_loss(y_train[sample_idx], loss_combined, n_classes_, lamb=self.lamb)
 
                         errors = 1 - pred_array
                         hardnesses = error_to_hardness(errors)
                         cur_sample_uncertainty = np.var(hardnesses)
-
-                        # cur_sample_uncertainty = loss
 
                         uncertainty_for_class_1.append(cur_sample_uncertainty)
 
@@ -345,11 +333,11 @@ class UncertaintyAwareDeepForest(object):
                                 pass
 
                             pred_list = []
-                            evidence_array = np.zeros((len(self.estimator_configs) * len(y_train_probas_per_layer_per_forest), n_classes_))
+                            evidence_array = np.zeros(
+                                (len(self.estimator_configs) * len(y_train_probas_per_layer_per_forest), n_classes_))
                             # print("evidence_array.shape", evidence_array.shape)
                             # print(len(self.estimator_configs) * len(y_train_probas_per_layer_per_forest))
                             # print(n_classes_)
-
 
                             for layer_loc in range(len(y_train_probas_per_layer_per_forest)):
                                 for forest_loc in range(len(self.estimator_configs)):
@@ -367,7 +355,6 @@ class UncertaintyAwareDeepForest(object):
                                             "forest_loc * n_classes_ + 1 {} >= len(y_train_probas_per_layer_per_forest[layer_loc][sample_idx]) {}".format(
                                                 forest_loc * n_classes_ + 1,
                                                 len(y_train_probas_per_layer_per_forest[layer_loc][sample_idx])))
-
 
                                     pred_list.append(y_train_probas_per_layer_per_forest[layer_loc][sample_idx][
                                                          forest_loc * n_classes_ + 1])
@@ -389,47 +376,31 @@ class UncertaintyAwareDeepForest(object):
                                                 forest_loc * n_classes_ + 1,
                                                 len(y_train_evidence_per_layer_per_forest[layer_loc][sample_idx])))
 
-                                    evidence_array[forest_idx, 0] = y_train_evidence_per_layer_per_forest[layer_loc][sample_idx][
-                                                         forest_loc * n_classes_] / 50
-                                    evidence_array[forest_idx, 1] = y_train_evidence_per_layer_per_forest[layer_loc][sample_idx][
-                                                            forest_loc * n_classes_ + 1] / 50
+                                    evidence_array[forest_idx, 0] = \
+                                        y_train_evidence_per_layer_per_forest[layer_loc][sample_idx][
+                                            forest_loc * n_classes_] / 50
+                                    evidence_array[forest_idx, 1] = \
+                                        y_train_evidence_per_layer_per_forest[layer_loc][sample_idx][
+                                            forest_loc * n_classes_ + 1] / 50
                                     forest_idx += 1
 
                             pred_array = np.array(pred_list)
-                            # evidence_array = np.array(evidence_list)
 
-
-                            # print(pred_array)
-                            # print(evidence_array)
-
-                            # fwefwe
                             expanded_pred_array = np.vstack((1 - pred_array, pred_array)).T
                             expanded_pred_array *= (self.n_estimators + 1)
 
-                            # print("expanded_pred_array[0]:", expanded_pred_array[0].reshape(1, 2))
-                            # print("expanded_pred_array[0].shape", expanded_pred_array[0].reshape(1,2).shape)
-
-                            # 现在要对每个样本计算loss
-                            # alpha_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(expanded_pred_array[0].reshape(1, 2),
-                            #                                                       expanded_pred_array[1].reshape(1, 2))
-                            # for k in range(2, len(self.estimator_configs)):
-                            #     alpha_combined, b_combined, u_combined = DS_Combine_ensemble_for_instances(alpha_combined.reshape(1, 2),
-                            #                                                           expanded_pred_array[k].reshape(1, 2))
-
-                            # alpha_combined, b_combined, u_combined = DS_Combine2(evidence_array[0].reshape(1, 2),
-                            #                                                     evidence_array[1].reshape(1, 2))
                             Opinion = DS_Combine2(evidence_array[0].reshape(1, 2),
-                                                    evidence_array[1].reshape(1, 2))
+                                                  evidence_array[1].reshape(1, 2))
 
                             W = 1
                             beta_distributions = []
                             for k in range(len(self.estimator_configs)):
-                                alpha_k, beta_k = evidence_array[k][0]+W, evidence_array[k][1]+W
+                                alpha_k, beta_k = evidence_array[k][0] + W, evidence_array[k][1] + W
                                 beta_distributions.append([alpha_k, beta_k])
 
                             for k in range(2, len(self.estimator_configs)):
                                 Opinion = DS_Combine_evidence_with_opinion(evidence_array[k].reshape(1, 2),
-                                                                                    Opinion)
+                                                                           Opinion)
 
                             b_combined, d_combined, u_combined = Opinion
 
@@ -437,7 +408,8 @@ class UncertaintyAwareDeepForest(object):
                             beta_combined = (d_combined * 2 * W) / u_combined + W
 
                             # loss, A, B = ce_loss(y_train[sample_idx], alpha_combined, n_classes_)
-                            loss, A,B = ce_loss2(y_train[sample_idx], alpha_combined, beta_combined, beta_distributions)
+                            loss, A, B = ce_loss2(y_train[sample_idx], alpha_combined, beta_combined,
+                                                  beta_distributions)
                             loss_A_B_stats["index"].append(sample_idx)
                             loss_A_B_stats["loss"].append(loss)
                             loss_A_B_stats["A"].append(A)
@@ -445,7 +417,6 @@ class UncertaintyAwareDeepForest(object):
 
                             all_instance_B[sample_idx] = B
                             all_instance_u[sample_idx] = u_combined
-
 
                             # print("type(expanded_pred_array):", type(expanded_pred_array))
                             # print("shape(expanded_pred_array):", expanded_pred_array.shape)
@@ -479,7 +450,6 @@ class UncertaintyAwareDeepForest(object):
 
                         if len(cur_bucket_sample_uncertainty) != len(buckets[i]):
                             raise ValueError("len(cur_bucket_sample_uncertainty) != len(buckets[{}])".format(i))
-
 
                     return bucket_variances, loss_A_B_stats, all_instance_B, all_instance_u
 
@@ -520,8 +490,10 @@ class UncertaintyAwareDeepForest(object):
                 else:
                     pass
 
-                y_proba, y_evidence, alpha = k_fold_est.fit(cur_layer_x_train, cur_layer_y_train, buckets, bucket_variances,
-                                         resort_idx_for_class_1, uncertainty_for_class_1, loss_A_B_stats)
+                y_proba, y_evidence, alpha = k_fold_est.fit(cur_layer_x_train, cur_layer_y_train, buckets,
+                                                            bucket_variances,
+                                                            resort_idx_for_class_1, uncertainty_for_class_1,
+                                                            loss_A_B_stats)
                 self.alpha_list.append(alpha)
                 y_pred_cur_k_fold_forest = self.category[np.argmax(y_proba, axis=1)]
                 cur_k_fold_forest_cm = confusion_matrix(y_train, y_pred_cur_k_fold_forest)
@@ -605,7 +577,8 @@ class UncertaintyAwareDeepForest(object):
                     enhanced_vector_per_layer.append(y_train_probas)
                 elif self.enhancement_vector_method == "trusted_enhancement_vector":
 
-                    all_instance_KL, all_instance_u = self.calculate_KL_u_use_evidence(y_train_probas_per_layer_per_forest, n_classes_)
+                    all_instance_KL, all_instance_u = self.calculate_KL_u_use_evidence(
+                        y_train_probas_per_layer_per_forest, n_classes_)
                     if all_instance_KL is not None and all_instance_u is not None:
                         if self.use_u_KL_method == "u":
                             enhanced_vector_cur_layer = np.hstack((all_instance_u, y_train_probas))
@@ -645,7 +618,8 @@ class UncertaintyAwareDeepForest(object):
                     enhanced_vector_per_layer.append(y_train_probas)
                 elif self.enhancement_vector_method == "trusted_enhancement_vector":
 
-                    all_instance_KL, all_instance_u = self.calculate_KL_u_use_evidence(y_train_probas_per_layer_per_forest, n_classes_)
+                    all_instance_KL, all_instance_u = self.calculate_KL_u_use_evidence(
+                        y_train_probas_per_layer_per_forest, n_classes_)
                     if all_instance_KL is not None and all_instance_u is not None:
 
                         if self.use_u_KL_method == "u":
@@ -656,13 +630,9 @@ class UncertaintyAwareDeepForest(object):
                             enhanced_vector_cur_layer = np.hstack((all_instance_KL, all_instance_u, y_train_probas))
                         else:
                             raise ValueError("use_u_KL_method must be u or KL or all")
-                        # enhanced_vector_cur_layer = np.hstack((all_instance_KL, all_instance_u, y_train_probas))
-                        # enhanced_vector_cur_layer = np.hstack((all_instance_KL, y_train_probas))
                         enhanced_vector_per_layer.append(enhanced_vector_cur_layer)
 
-                        # print(f"Final enhanced_vector_cur_layer type: {type(enhanced_vector_cur_layer)}")
                         if isinstance(enhanced_vector_cur_layer, np.ndarray):
-                            # print(f"enhanced_vector_cur_layer shape: {enhanced_vector_cur_layer.shape}")
                             pass
                         else:
                             print(f"enhanced_vector_cur_layer content length: {len(enhanced_vector_cur_layer)}")
@@ -673,17 +643,14 @@ class UncertaintyAwareDeepForest(object):
                     raise ValueError(
                         "enhancement_vector_method must be mean_confusion_matrix, confusion_matrix or class_proba")
 
-
             if current_evaluation > best_layer_evaluation:
                 best_layer_id = current_layer.layer_id
                 best_layer_evaluation = current_evaluation
             LOGGER.info(
                 "The evaluation[{}] of layer_{} is {:.4f}".format(evaluate.__name__, depth, current_evaluation))
 
-            # print("num_layers_before_append:", len(self.layers))
             self.layers.append(current_layer)
             print("num_layers:", len(self.layers))
-
 
             if current_layer.layer_id - best_layer_id >= self.early_stop_rounds:
                 self.layers = self.layers[0:best_layer_id + 1]
@@ -757,10 +724,6 @@ class UncertaintyAwareDeepForest(object):
 
                 x_test_proba = self.layers[layer_index].predict_proba(x_test_cur_layer)
                 summed_probas += weights[layer_index] * self.layers[layer_index]._predict_proba(x_test_cur_layer)
-
-
-
-
 
                 if self.enhancement_vector_method == "class_proba_vector":
                     enhanced_vectors.append(x_test_proba)
@@ -876,8 +839,6 @@ class UncertaintyAwareDeepForest(object):
                 elif self.enhancement_vector_method == "trusted_enhancement_vector":
                     x_test_probas.append(x_test_proba)
                     B, u = self.calculate_KL_u_use_evidence(x_test_probas, len(self.category))
-                    # enhanced_vector_cur_layer = np.hstack((B, x_test_proba))
-                    # enhanced_vector_cur_layer = np.hstack((u, x_test_proba))
 
                     if self.use_u_KL_method == "u":
                         enhanced_vector_cur_layer = np.hstack((u, x_test_proba))

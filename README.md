@@ -8,6 +8,9 @@ UABDF integrates **evidence-based uncertainty estimation**, **dynamic undersampl
 and a **dual-purpose Wasserstein alignment mechanism** to enhance both predictive performance  
 and structural consistency across classifiers.
 
+![UABDF Framework](imgs/UABDF_framework.jpg)
+
+
 ## Highlights
 
 - **Novel Uncertainty-Aware Ensemble Framework**  
