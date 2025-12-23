@@ -32,8 +32,8 @@ and structural consistency across classifiers.
 
 ### Main dependencies
 
-- **Python** (>=3.7)
-- **NumPy** (1.24.3)
+- **python** (>=3.7)
+- **numPy** (1.24.3)
 - **pandas** (2.2.2)
 - **scikit-learn** (1.3.1)
 - **imbalanced-ensemble** (0.2.1)
