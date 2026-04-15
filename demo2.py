@@ -131,9 +131,17 @@ if __name__ == "__main__":
     dataset_files = {
         "wine1": "download_data/wine1.csv",
         "wine2": "download_data/wine2.csv",
+        "abalone_custom": "download_data/abalone_custom.csv",
+        "ecoli1_custom": "download_data/ecoli1_custom.csv",
+        "glass5_custom": "download_data/glass5_custom.csv",
+        "libras_move_custom": "download_data/libras_move_custom.csv",
+        "silhouettes2_custom": "download_data/silhouettes2_custom.csv",
+        "silhouettes3_custom": "download_data/silhouettes3_custom.csv",
+        "silhouettes4_custom": "download_data/silhouettes4_custom.csv",
+        "WDBC_custom": "download_data/WDBC_custom.csv",
     }
 
-    save_dir = "wine_cv_results_single_file"
+    save_dir = "cv_results_single_file"
 
     for dataset_name, csv_path in dataset_files.items():
         run_dataset(dataset_name, csv_path, save_dir)
