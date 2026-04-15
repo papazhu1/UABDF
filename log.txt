@@ -1718,3 +1718,24 @@ The evaluation[gmean] of layer_1 is 1.0000 - 2026-04-14 15:50:42,365 - Uncertain
 The evaluation[gmean] of layer_2 is 1.0000 - 2026-04-14 15:51:02,558 - UncertaintyAwareBalancedDeepForest
 best_layer: 1, current_layer:2, save layers: 2 - 2026-04-14 15:51:02,558 - UncertaintyAwareBalancedDeepForest
 training finish... - 2026-04-14 15:51:02,558 - UncertaintyAwareBalancedDeepForest
+Begin to train.... - 2026-04-15 15:05:16,395 - UncertaintyAwareBalancedDeepForest
+the shape of training samples: (3341, 10) - 2026-04-15 15:05:16,395 - UncertaintyAwareBalancedDeepForest
+use gmean as training evaluation - 2026-04-15 15:05:16,395 - UncertaintyAwareBalancedDeepForest
+stacking: False, save model: False - 2026-04-15 15:05:16,395 - UncertaintyAwareBalancedDeepForest
+-----------------------------------------layer-0-------------------------------------------- - 2026-04-15 15:05:16,395 - UncertaintyAwareBalancedDeepForest
+The evaluation[gmean] of layer_0 is 0.3209 - 2026-04-15 15:06:06,085 - UncertaintyAwareBalancedDeepForest
+-----------------------------------------layer-1-------------------------------------------- - 2026-04-15 15:06:06,085 - UncertaintyAwareBalancedDeepForest
+Begin to train.... - 2026-04-15 15:06:14,357 - UncertaintyAwareBalancedDeepForest
+the shape of training samples: (3341, 10) - 2026-04-15 15:06:14,357 - UncertaintyAwareBalancedDeepForest
+use gmean as training evaluation - 2026-04-15 15:06:14,357 - UncertaintyAwareBalancedDeepForest
+stacking: False, save model: False - 2026-04-15 15:06:14,357 - UncertaintyAwareBalancedDeepForest
+-----------------------------------------layer-0-------------------------------------------- - 2026-04-15 15:06:14,357 - UncertaintyAwareBalancedDeepForest
+The evaluation[gmean] of layer_0 is 0.3210 - 2026-04-15 15:07:03,625 - UncertaintyAwareBalancedDeepForest
+-----------------------------------------layer-1-------------------------------------------- - 2026-04-15 15:07:03,625 - UncertaintyAwareBalancedDeepForest
+Begin to train.... - 2026-04-15 15:07:38,772 - UncertaintyAwareBalancedDeepForest
+the shape of training samples: (3341, 10) - 2026-04-15 15:07:38,772 - UncertaintyAwareBalancedDeepForest
+use gmean as training evaluation - 2026-04-15 15:07:38,772 - UncertaintyAwareBalancedDeepForest
+stacking: False, save model: False - 2026-04-15 15:07:38,772 - UncertaintyAwareBalancedDeepForest
+-----------------------------------------layer-0-------------------------------------------- - 2026-04-15 15:07:38,772 - UncertaintyAwareBalancedDeepForest
+The evaluation[gmean] of layer_0 is 0.3306 - 2026-04-15 15:08:30,102 - UncertaintyAwareBalancedDeepForest
+-----------------------------------------layer-1-------------------------------------------- - 2026-04-15 15:08:30,102 - UncertaintyAwareBalancedDeepForest

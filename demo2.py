@@ -76,6 +76,12 @@ def save_current_results(out_path, fold_records, dataset_name):
 
 def run_dataset(dataset_name, csv_path, save_dir):
     X, y = load_wine_csv(csv_path)
+    print("dataset_name:", dataset_name)
+
+    pos_count = int(np.sum(y == 1))
+    neg_count = int(np.sum(y == 0))
+    print(f"{dataset_name} total samples: {len(y)}, pos: {pos_count}, neg: {neg_count}")
+
 
     rskf = RepeatedStratifiedKFold(n_splits=5, n_repeats=10, random_state=42)
 
@@ -129,8 +135,7 @@ def run_dataset(dataset_name, csv_path, save_dir):
 
 if __name__ == "__main__":
     dataset_files = {
-        "wine1": "download_data/wine1.csv",
-        "wine2": "download_data/wine2.csv",
+
         "abalone_custom": "download_data/abalone_custom.csv",
         "ecoli1_custom": "download_data/ecoli1_custom.csv",
         "glass5_custom": "download_data/glass5_custom.csv",
@@ -139,6 +144,8 @@ if __name__ == "__main__":
         "silhouettes3_custom": "download_data/silhouettes3_custom.csv",
         "silhouettes4_custom": "download_data/silhouettes4_custom.csv",
         "WDBC_custom": "download_data/WDBC_custom.csv",
+        "wine1": "download_data/wine1.csv",
+        "wine2": "download_data/wine2.csv",
     }
 
     save_dir = "cv_results_single_file"
