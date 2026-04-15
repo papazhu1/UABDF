@@ -9,7 +9,7 @@ from sklearn.model_selection import StratifiedKFold
 import data_util
 from UABDF import UncertaintyAwareBalancedDeepForest
 from data_util import *
-from evaluation import f1_macro, gmean
+from evaluation import f1_macro, gmean, specificity
 
 model_dict = {}
 model_dict["rf"] = "RandomForestClassifier"
@@ -71,11 +71,20 @@ if __name__ == "__main__":
     # for dataset_name in dataset_names:
     #     X, y = load_data(dataset_name)
 
-    function_list = ["get_ecoli1"]
+    function_list = ["get_yeast5"]
 
     for func in function_list:
-        func = globals()[func]
-        X, y, dataset_name = func()
+        # func = globals()[func]
+        # X, y, dataset_name = func()
+
+        # 用保存下来的数据集
+        dataset = np.load("zenodo_1/libras_move.npz")
+        dataset_name = "libras_move"
+        print(dataset.files)
+        X, y = dataset['data'], dataset['label']
+        y = np.where(y == -1, 0, y)
+
+
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
         DGBDF_weighted_layers_acc_list = []
