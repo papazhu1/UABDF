@@ -74,12 +74,12 @@ if __name__ == "__main__":
     function_list = ["get_yeast5"]
 
     for func in function_list:
-        # func = globals()[func]
-        # X, y, dataset_name = func()
+        func = globals()[func]
+        X, y, dataset_name = func()
 
         # 用保存下来的数据集
-        dataset = np.load("zenodo_1/libras_move.npz")
-        dataset_name = "libras_move"
+        # dataset = np.load("zenodo_1/libras_move.npz")
+        # dataset_name = "libras_move"
         print(dataset.files)
         X, y = dataset['data'], dataset['label']
         y = np.where(y == -1, 0, y)
@@ -87,15 +87,15 @@ if __name__ == "__main__":
 
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-        DGBDF_weighted_layers_acc_list = []
-        DGBDF_weighted_layers_auc_list = []
-        DGBDF_weighted_layers_gmean_list = []
-        DGBDF_weighted_layers_sen_list = []
-        DGBDF_weighted_layers_spe_list = []
-        DGBDF_weighted_layers_aupr_list = []
-        DGBDF_weighted_layers_f1_macro_list = []
-        DGBDF_weighted_layers_precision_list = []
-        DGBDF_weighted_layers_recall_list = []
+        UABDF_weighted_layers_acc_list = []
+        UABDF_weighted_layers_auc_list = []
+        UABDF_weighted_layers_gmean_list = []
+        UABDF_weighted_layers_sen_list = []
+        UABDF_weighted_layers_spe_list = []
+        UABDF_weighted_layers_aupr_list = []
+        UABDF_weighted_layers_f1_macro_list = []
+        UABDF_weighted_layers_precision_list = []
+        UABDF_weighted_layers_recall_list = []
 
         per_layer_res = []
         per_layer_res_weighted_layers = []
@@ -123,67 +123,67 @@ if __name__ == "__main__":
             UADF = UncertaintyAwareBalancedDeepForest(config)
             UADF.fit(X_train, y_train)
 
-            # shap_analysis_per_layer(DGBDF, X_test, y_test)
+            # shap_analysis_per_layer(UABDF, X_test, y_test)
 
             per_layer_res.append(UADF.per_layer_res)
             per_layer_res_weighted_layers.append(UADF.per_layer_res_weighted_layers)
-            DGBDF_pred_proba_weighted = UADF.predict_proba_weighted_layers(
+            UABDF_pred_proba_weighted = UADF.predict_proba_weighted_layers(
                 X_test)
 
-            # 检查 DGBDF_pred_proba_weighted 是否有 NaN
-            if np.isnan(DGBDF_pred_proba_weighted).any():
-                print("DGBDF_pred_proba_weighted contains NaN values.")
-                print("DGBDF_pred_proba_weighted\n", DGBDF_pred_proba_weighted)
+            # 检查 UABDF_pred_proba_weighted 是否有 NaN
+            if np.isnan(UABDF_pred_proba_weighted).any():
+                print("UABDF_pred_proba_weighted contains NaN values.")
+                print("UABDF_pred_proba_weighted\n", UABDF_pred_proba_weighted)
                 # 找出 NaN 元素的位置
-                nan_indices = np.argwhere(np.isnan(DGBDF_pred_proba_weighted))
+                nan_indices = np.argwhere(np.isnan(UABDF_pred_proba_weighted))
                 print("Indices of NaN values:", nan_indices)
 
-            DGBDF_pred_weighted = UADF.category[
-                np.argmax(DGBDF_pred_proba_weighted, axis=1)]
+            UABDF_pred_weighted = UADF.category[
+                np.argmax(UABDF_pred_proba_weighted, axis=1)]
 
             # 保存当前折的预测结果
-            all_proba.extend(DGBDF_pred_proba_weighted)
-            all_pred.extend(DGBDF_pred_weighted)
+            all_proba.extend(UABDF_pred_proba_weighted)
+            all_pred.extend(UABDF_pred_weighted)
             all_true_label.extend(y_test)
 
-            print("DGBDF_weighted_layers acc: ", accuracy_score(y_test, DGBDF_pred_weighted))
-            print("DGBDF_weighted_layers auc: ",
-                  roc_auc_score(y_test, DGBDF_pred_proba_weighted[:, 1]))
-            print("DGBDF_weighted_layers gmean: ",
-                  geometric_mean_score(y_test, DGBDF_pred_weighted))
-            print("DGBDF_weighted_layers sen: ", sensitivity_score(y_test, DGBDF_pred_weighted))
-            print("DGBDF_weighted_layers spe: ", specificity_score(y_test, DGBDF_pred_weighted))
-            print("DGBDF_weighted_layers aupr: ",
-                  average_precision_score(y_test, DGBDF_pred_proba_weighted[:, 1]))
-            print("DGBDF_weighted_layers f1_macro: ",
-                  f1_score(y_test, DGBDF_pred_weighted, average="macro"))
-            print("DGBDF_weighted_layers precision: ",
-                  precision_score(y_test, DGBDF_pred_weighted, average="macro"))
-            print("DGBDF_weighted_layers recall: ",
-                  sensitivity_score(y_test, DGBDF_pred_weighted, average="macro"))
+            print("UABDF_weighted_layers acc: ", accuracy_score(y_test, UABDF_pred_weighted))
+            print("UABDF_weighted_layers auc: ",
+                  roc_auc_score(y_test, UABDF_pred_proba_weighted[:, 1]))
+            print("UABDF_weighted_layers gmean: ",
+                  geometric_mean_score(y_test, UABDF_pred_weighted))
+            print("UABDF_weighted_layers sen: ", sensitivity_score(y_test, UABDF_pred_weighted))
+            print("UABDF_weighted_layers spe: ", specificity_score(y_test, UABDF_pred_weighted))
+            print("UABDF_weighted_layers aupr: ",
+                  average_precision_score(y_test, UABDF_pred_proba_weighted[:, 1]))
+            print("UABDF_weighted_layers f1_macro: ",
+                  f1_score(y_test, UABDF_pred_weighted, average="macro"))
+            print("UABDF_weighted_layers precision: ",
+                  precision_score(y_test, UABDF_pred_weighted, average="macro"))
+            print("UABDF_weighted_layers recall: ",
+                  sensitivity_score(y_test, UABDF_pred_weighted, average="macro"))
 
-            DGBDF_weighted_layers_acc_list.append(accuracy_score(y_test, DGBDF_pred_weighted))
-            DGBDF_weighted_layers_auc_list.append(roc_auc_score(y_test, DGBDF_pred_proba_weighted[:, 1]))
-            DGBDF_weighted_layers_gmean_list.append(geometric_mean_score(y_test, DGBDF_pred_weighted))
-            DGBDF_weighted_layers_sen_list.append(sensitivity_score(y_test, DGBDF_pred_weighted))
-            DGBDF_weighted_layers_spe_list.append(specificity_score(y_test, DGBDF_pred_weighted))
-            DGBDF_weighted_layers_aupr_list.append(
-                average_precision_score(y_test, DGBDF_pred_proba_weighted[:, 1]))
-            DGBDF_weighted_layers_f1_macro_list.append(f1_score(y_test, DGBDF_pred_weighted, average="macro"))
-            DGBDF_weighted_layers_precision_list.append(precision_score(y_test, DGBDF_pred_weighted, average="macro"))
-            DGBDF_weighted_layers_recall_list.append(sensitivity_score(y_test, DGBDF_pred_weighted, average="macro"))
+            UABDF_weighted_layers_acc_list.append(accuracy_score(y_test, UABDF_pred_weighted))
+            UABDF_weighted_layers_auc_list.append(roc_auc_score(y_test, UABDF_pred_proba_weighted[:, 1]))
+            UABDF_weighted_layers_gmean_list.append(geometric_mean_score(y_test, UABDF_pred_weighted))
+            UABDF_weighted_layers_sen_list.append(sensitivity_score(y_test, UABDF_pred_weighted))
+            UABDF_weighted_layers_spe_list.append(specificity_score(y_test, UABDF_pred_weighted))
+            UABDF_weighted_layers_aupr_list.append(
+                average_precision_score(y_test, UABDF_pred_proba_weighted[:, 1]))
+            UABDF_weighted_layers_f1_macro_list.append(f1_score(y_test, UABDF_pred_weighted, average="macro"))
+            UABDF_weighted_layers_precision_list.append(precision_score(y_test, UABDF_pred_weighted, average="macro"))
+            UABDF_weighted_layers_recall_list.append(sensitivity_score(y_test, UABDF_pred_weighted, average="macro"))
 
-        print("DGBDF weighted_layers acc mean: ", np.mean(DGBDF_weighted_layers_acc_list))
-        print("DGBDF weighted_layers auc mean: ", np.mean(DGBDF_weighted_layers_auc_list))
-        print("DGBDF weighted_layers gmean mean: ", np.mean(DGBDF_weighted_layers_gmean_list))
-        print("DGBDF weighted_layers sen mean: ", np.mean(DGBDF_weighted_layers_sen_list))
-        print("DGBDF weighted_layers spe mean: ", np.mean(DGBDF_weighted_layers_spe_list))
-        print("DGBDF weighted_layers aupr mean: ", np.mean(DGBDF_weighted_layers_aupr_list))
-        print("DGBDF weighted_layers f1_macro mean: ",
-              np.mean(DGBDF_weighted_layers_f1_macro_list))
-        print("DGBDF weighted_layers precision mean: ",
-              np.mean(DGBDF_weighted_layers_precision_list))
-        print("DGBDF weighted_layers recall mean: ",
-              np.mean(DGBDF_weighted_layers_recall_list))
+        print("UABDF weighted_layers acc mean: ", np.mean(UABDF_weighted_layers_acc_list))
+        print("UABDF weighted_layers auc mean: ", np.mean(UABDF_weighted_layers_auc_list))
+        print("UABDF weighted_layers gmean mean: ", np.mean(UABDF_weighted_layers_gmean_list))
+        print("UABDF weighted_layers sen mean: ", np.mean(UABDF_weighted_layers_sen_list))
+        print("UABDF weighted_layers spe mean: ", np.mean(UABDF_weighted_layers_spe_list))
+        print("UABDF weighted_layers aupr mean: ", np.mean(UABDF_weighted_layers_aupr_list))
+        print("UABDF weighted_layers f1_macro mean: ",
+              np.mean(UABDF_weighted_layers_f1_macro_list))
+        print("UABDF weighted_layers precision mean: ",
+              np.mean(UABDF_weighted_layers_precision_list))
+        print("UABDF weighted_layers recall mean: ",
+              np.mean(UABDF_weighted_layers_recall_list))
 
         print("dataset_name: ", dataset_name)
